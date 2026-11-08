@@ -1,3 +1,5 @@
+<img src="src/main/resources/icon.png" alt="" width="128" align="right">
+
 # Create: Railways Unlimited
 
 Addon for [Create](https://modrinth.com/mod/create) 6.0.10+ on Minecraft 1.21.1 (NeoForge) that lets straight
@@ -28,7 +30,7 @@ without gaps. Straight curves do not slow trains down like real curves do.
 Slopes behave like Create's: a free end lies flat, continuing from it tilts the joint so the hill runs on, level
 track after a hill leaves the hill as it is, and a Create track block between two slopes is tilted to their average.
 
-## Limitations (0.1.0-beta.1)
+## Limitations (0.1.0-beta.2)
 
 - Trains can stop at stations on angled track, but are assembled on 0°/45° track as in Create.
 - Girders and paving from the off-hand are not applied to angled pieces yet.
