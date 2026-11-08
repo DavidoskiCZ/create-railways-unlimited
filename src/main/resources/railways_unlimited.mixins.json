@@ -1,0 +1,29 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.davzelenec.railwaysunlimited.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CarriageContraptionEntityMixin",
+    "CurvedTrackDestroyPacketRangeMixin",
+    "CurvedTrackSelectionPacketRangeMixin",
+    "TrackBlockItemMixin",
+    "TrackPlacementMixin",
+    "TrackBlockEntityMixin",
+    "TrackPropagatorMixin",
+    "TrackTargetingBlockItemRangeMixin",
+    "TravellingPointMixin"
+  ],
+  "client": [
+    "client.CurvedTrackInteractionMixin",
+    "client.PlacementInfoAccessor",
+    "client.ToolboxHandlerClientMixin",
+    "client.TrackBlockOutlineMixin",
+    "client.TrackPlacementAccessor",
+    "client.TrackPlacementMixin",
+    "client.TrackPlacementOverlayMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

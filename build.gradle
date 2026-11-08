@@ -1,0 +1,119 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'idea'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-${minecraft_version}"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    maven { url = 'https://maven.createmod.net' } // Create, Ponder, Flywheel, Vanillin
+    maven { url = 'https://maven.ithundxr.dev/snapshots' } // Registrate
+    maven { url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven' } // Forge config API port (Ponder)
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        configureEach {
+            // forward a trust store override (e.g. Windows-ROOT behind an HTTPS-scanning antivirus) to the game
+            def trustStoreType = System.getProperty('javax.net.ssl.trustStoreType')
+            if (trustStoreType)
+                systemProperty 'javax.net.ssl.trustStoreType', trustStoreType
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    // Create itself. Its published POM drags in many optional runtime mods, so dependencies are listed by hand.
+    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
+    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
+    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
+    localRuntime("dev.engine-room.vanillin:vanillin-neoforge-${minecraft_version}:${vanillin_version}")
+    implementation("com.tterrag.registrate:Registrate:${registrate_version}")
+
+    // dev runs only: the Create Track Map web map (unofficial 1.21.1 fork, needs Kotlin for Forge), to check that
+    // angled track is drawn without gaps
+    localRuntime("maven.modrinth:create-track-map-unofficial-fork:2.1+1.21.1-neoforge")
+    localRuntime("maven.modrinth:kotlin-for-forge:5.12.0")
+    // dev runs only: Steam 'n' Rails (unofficial 1.21.1 port), to check its track types on angled track
+    localRuntime("maven.modrinth:create-steam-n-rails-1.21.1:0.3.0-beta.2+neoforge-mc1.21.1")
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            create_version_range   : create_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
