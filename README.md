@@ -28,7 +28,7 @@ without gaps. Straight curves do not slow trains down like real curves do.
 Slopes behave like Create's: a free end lies flat, continuing from it tilts the joint so the hill runs on, level
 track after a hill leaves the hill as it is, and a Create track block between two slopes is tilted to their average.
 
-## Limitations (0.1.0)
+## Limitations (0.1.0-beta.1)
 
 - Trains can stop at stations on angled track, but are assembled on 0°/45° track as in Create.
 - Girders and paving from the off-hand are not applied to angled pieces yet.
