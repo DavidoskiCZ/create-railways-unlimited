@@ -41,3 +41,10 @@ track after a hill leaves the hill as it is, and a Create track block between tw
 `.\dev.ps1` starts the dev client, `.\dev.ps1 runGameTestServer` runs the automated in-game tests,
 `.\dev.ps1 build` builds the jar into `build\libs`. Dev runs also load Create Track Map (web map at
 http://localhost:3876) and Steam 'n' Rails; neither is a dependency of the mod.
+
+### Releasing
+
+GitHub Actions builds the jar and runs the game tests on every push. To release: set `mod_version` in
+`gradle.properties`, add a section for it to `CHANGELOG.md`, commit, then push a matching tag
+(`git tag -a v<version> -m <version>` and `git push origin v<version>`). The workflow creates the GitHub Release with
+the jar and that changelog section; versions with `alpha` or `beta` are marked as pre-releases.

@@ -1,0 +1,73 @@
+# Builds the mod and runs the game tests on every push and pull request.
+# Pushing a version tag (v0.1.0-beta.3, ...) also creates a GitHub Release with the jar and the changelog notes.
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Read the mod version
+        id: version
+        run: echo "version=$(grep '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '\r')" >> "$GITHUB_OUTPUT"
+
+      - name: Check that the tag matches the mod version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "v${{ steps.version.outputs.version }}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match mod_version ${{ steps.version.outputs.version }} in gradle.properties"
+            exit 1
+          fi
+
+      - name: Build
+        run: bash ./gradlew build --console=plain
+
+      - name: Run the game tests
+        run: bash ./gradlew runGameTestServer --console=plain
+
+      - name: Keep the jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: railways_unlimited-${{ steps.version.outputs.version }}
+          path: build/libs/*-${{ steps.version.outputs.version }}.jar
+
+      - name: Take the release notes from the changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          awk -v v="${{ steps.version.outputs.version }}" '
+            index($0, "## [" v "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[.*\]: / { exit }
+            on { print }
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::CHANGELOG.md has no section for ${{ steps.version.outputs.version }}"
+            exit 1
+          fi
+
+      - name: Create the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: build/libs/*-${{ steps.version.outputs.version }}.jar
+          prerelease: ${{ contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') }}
