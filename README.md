@@ -34,7 +34,7 @@ track after a hill leaves the hill as it is, and a Create track block between tw
 
 - Trains can stop at stations on angled track, but are assembled on 0°/45° track as in Create.
 - Girders and paving from the off-hand are not applied to angled pieces yet.
-- Angled track cannot start from or end on Create's steep slope blocks.
+- Angled track cannot connect to Create's steep ramp track (the 1:1 slope blocks); Create's own smooth slopes work fine.
 
 ## Development
 
@@ -47,4 +47,5 @@ http://localhost:3876) and Steam 'n' Rails; neither is a dependency of the mod.
 GitHub Actions builds the jar and runs the game tests on every push. To release: set `mod_version` in
 `gradle.properties`, add a section for it to `CHANGELOG.md`, commit, then push a matching tag
 (`git tag -a v<version> -m <version>` and `git push origin v<version>`). The workflow creates the GitHub Release with
-the jar and that changelog section; versions with `alpha` or `beta` are marked as pre-releases.
+the jar and that changelog section (versions with `alpha` or `beta` are marked as pre-releases) and uploads the jar to
+CurseForge (project 1819444) when the `CURSEFORGE_TOKEN` repository secret is set.

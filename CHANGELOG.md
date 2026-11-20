@@ -30,7 +30,7 @@ First public beta.
 ### Known limitations
 - Trains are assembled on 0°/45° track (as in Create), but stop at stations on angled track.
 - Girders and paving are not applied to angled pieces yet.
-- Angled track cannot start from or end on Create's steep slope blocks.
+- Angled track cannot connect to Create's steep ramp track (the 1:1 slope blocks); Create's own smooth slopes work fine.
 
 [Unreleased]: https://github.com/DavidoskiCZ/create-railways-unlimited/compare/v0.1.0-beta.2...HEAD
 [0.1.0-beta.2]: https://github.com/DavidoskiCZ/create-railways-unlimited/compare/v0.1.0-beta.1...v0.1.0-beta.2
